@@ -1,0 +1,210 @@
+{% extends "base.html" %}
+
+{% load staticfiles %}
+
+
+{% block title %}
+{% endblock title %}
+
+{% block content %}
+<script src="{% static 'js/csrf.js' %}"></script>
+<script src="{% static 'layer/layer.js' %}"></script>
+<link href="{% static 'layer/theme/default/layer.css' %}" rel="stylesheet">
+<script type="text/javascript" >
+    function dolike(url,id,likes){
+
+        let storage = window.localStorage;
+        const storage_str_data = storage.getItem("my_blog_data");
+        let storage_json_data = JSON.parse(storage_str_data);
+
+        if(!storage_json_data){
+            storage_json_data = {}
+        }
+
+        const status = check_status(storage_json_data,id);
+        if (status) {
+            layer.msg('已经点过赞啦!', {icon: 0});
+            return;
+
+        }else{
+            $("#diggnum").text(likes+1)
+        }
+
+        $.post(
+            url,
+            {},
+            function(result){
+                if (result === 'success'){
+                    try{
+                        storage_json_data[id] = true;
+
+                    } catch (e){
+                        window.localStorage.clear();
+                    };
+                    const d = JSON.stringify(storage_json_data);
+                    try {
+                        storage.setItem("my_blog_data",d);
+                    } catch (e) {
+                        if (e.code === 22) {
+                            window.localStorage.clear();
+                            storage.setItem("my_blog_data",d);
+                        }
+                    }
+                } else {
+
+                    alert("与服务器连接失败。。");
+                }
+            }
+        );
+    }
+
+
+
+    function check_status(data,id){
+        try{
+            if(id in data && data[id]){
+                return true;
+            } else {
+                return false;
+            }
+        } catch(e) {
+            window.localStorage.clear();
+            return false;
+
+        }
+    }
+</script>
+
+
+<article>
+  <main>
+  </main>
+</article>
+
+<main>
+<div class="container">
+    <div class="row">
+
+             <div class="col-lg-9">
+             <div class="infosbox">
+      <div class="newsview">
+        <h3 class="news_title">{{ article.title }}</h3>
+        <div class="bloginfo">
+          <ul>
+            <li class="lmname  mx-2">分类：<a href="{% url 'article:article_list' %}?category={{ article.category.id }}">{{ article.category }}</a></li>
+            <li class="author mx-2">作者：<a href="/">{{ article.author }}</a></li>
+            <li class="timer mx-2">更新时间：{{ article.updated | date:'Y-m-d H:i:s'  }} </li>
+            <li class="view mx-2">{{ article.viewnum }}人已阅读</li>
+          </ul>
+        </div>
+
+
+        <div class="tags">
+          {% for tag in article.tags.all %}
+          <a href="/" target="_blank">{{ tag.name }}</a> &nbsp;
+          {% endfor %}
+        </div>
+
+        <!--<div class="news_about"><strong>简介</strong>{{ article.brief }}</div>-->
+
+        <div class="news_con">
+            {{ article.body|safe }}
+        </div>
+      </div>
+      <div class="share">
+        <p class="diggit">
+            <a href="JavaScript:dolike('{% url 'article:increase_likes' article.id %}',{{ article.id }},{{article.likenum}});"> 很赞哦！ </a>
+            (<b id="diggnum">{{ article.likenum }}</b>)
+        </p>
+      </div>
+
+
+      <div class="nextinfo">
+          {% if pre_article %}
+          <p>上一篇：<a href="{% url 'article:article_detail' pre_article.id %}">{{ pre_article.title }}</a></p>
+          {% else %}
+          <p>上一篇：<a href="{% url 'article:article_list' %}">木有了，返回列表</a></p>
+          {% endif  %}
+          {% if next_article %}
+          <p>下一篇：<a href="{% url 'article:article_detail' next_article.id %}">{{ next_article.title }}</a></p>
+          {% else %}
+          <p>下一篇：<a href="{% url 'article:article_list' %}">木有了，返回列表</a></p>
+          {% endif %}
+
+      </div>
+
+      <!--
+      <div class="news_pl">
+        <h2>文章评论</h2>
+        <div class="gbko">
+          <script src="/e/pl/more/?classid=77&amp;id=106&amp;num=20"></script>
+          <div class="fb">
+            <ul>
+              <p class="fbtime"><span>2018-07-24 11:52:38</span>dancesmile</p>
+              <p class="fbinfo">这才是我要的朋友圈</p>
+            </ul>
+          </div>
+          <div class="fb">
+            <ul>
+              <p class="fbtime"><span>2018-07-24 08:52:48</span> 卜野</p>
+              <p class="fbinfo"></p>
+              <div class="ecomment"><span class="ecommentauthor">网友 家蚂蚁 的原文：</span>
+                <p class="ecommenttext">坚持哟!看你每天都有写，请继续加油，再接再厉哦</p>
+              </div>
+            </ul>
+          </div>
+
+          <script>
+		  function CheckPl(obj)
+		  {
+		  if(obj.saytext.value=="")
+		  {
+		  alert("您没什么话要说吗？");
+		  obj.saytext.focus();
+		  return false;
+		  }
+		  return true;
+		  }
+		  </script>
+          <form action="/e/pl/doaction.php" method="post" name="saypl" id="saypl" onsubmit="return CheckPl(document.saypl)">
+            <div id="plpost">
+              <p class="saying"><span><a href="/e/pl/?classid=77&amp;id=106">共有<script type="text/javascript" src="/e/public/ViewClick/?classid=77&amp;id=106&amp;down=2"></script>2条评论</a></span>来说两句吧...</p>
+              <p class="yname"><span>用户名:</span>
+                <input name="username" type="text" class="inputText" id="username" value="" size="16">
+              </p>
+              <p class="yzm"><span>验证码:</span>
+                <input name="key" type="text" class="inputText" size="16">
+              </p>
+              <input name="nomember" type="hidden" id="nomember" value="1" checked="checked">
+              <textarea name="saytext" rows="6" id="saytext"></textarea>
+              <input name="imageField" type="submit" value="提交">
+              <input name="id" type="hidden" id="id" value="106">
+              <input name="classid" type="hidden" id="classid" value="77">
+              <input name="enews" type="hidden" id="enews" value="AddPl">
+              <input name="repid" type="hidden" id="repid" value="0">
+              <input type="hidden" name="ecmsfrom" value="/joke/talk/2018-07-23/106.html">
+            </div>
+          </form>
+        </div>
+      </div>
+      -->
+    </div>
+       </div>
+      <div class="col-lg-3">
+        <info_aside class="l_box">
+            <div class="toc">
+              <h2>文章目录</h2>
+                {{ toc|safe }}
+            </div>
+           </info_aside>
+       </div>
+
+    </div>
+</div>
+</main>
+
+{% endblock content %}
+
+
+
+

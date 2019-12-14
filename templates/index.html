@@ -1,0 +1,148 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+
+{% block title %}
+{% endblock title %}
+
+{% block content %}
+<article>
+  <aside class="l_box">
+    <div class="search">
+      <form action="{% url 'article:article_list' %}" method="post" name="searchform" id="searchform">
+          {% csrf_token %}
+        <input name="searchstr" id="searchstr" required="required" class="input_text" placeholder="搜索文章..." value=""  type="text">
+        <input name="Submit" class="input_submit" value="搜索" type="submit">
+      </form>
+    </div>
+    <div class="fenlei">
+      <h2>文章分类</h2>
+      <ul>
+          {% for cat in categorys %}
+            <li><a href="{% url 'article:article_list' %}?category={{ cat.id }}">{{ cat.name }}（{{cat.article_set.count}}）</a></li>
+          {% endfor %}
+      </ul>
+    </div>
+      <!--
+    <div class="tuijian">
+      <h2>站长推荐</h2>
+      <ul>
+        <li><a href="/">你是什么人便会遇上什么人</a></li>
+        <li><a href="/">帝国cms 列表页调用子栏目，没有则不显示栏目名称</a></li>
+        <li><a href="/">第二届 优秀个人博客模板比赛参选活动</a></li>
+        <li><a href="/">个人博客模板《绅士》后台管理</a></li>
+        <li><a href="/">你是什么人便会遇上什么人</a></li>
+        <li><a href="/">帝国cms 列表页调用子栏目，没有则不显示栏目名称</a></li>
+        <li><a href="/">第二届 优秀个人博客模板比赛参选活动</a></li>
+        <li><a href="/">个人博客模板《绅士》后台管理</a></li>
+      </ul>
+    </div>
+     <div class="tuijian">
+      <h2>点击排行</h2>
+      <ul>
+        <li><a href="/">你是什么人便会遇上什么人</a></li>
+        <li><a href="/">帝国cms 列表页调用子栏目，没有则不显示栏目名称</a></li>
+        <li><a href="/">第二届 优秀个人博客模板比赛参选活动</a></li>
+        <li><a href="/">个人博客模板《绅士》后台管理</a></li>
+        <li><a href="/">你是什么人便会遇上什么人</a></li>
+        <li><a href="/">帝国cms 列表页调用子栏目，没有则不显示栏目名称</a></li>
+        <li><a href="/">第二届 优秀个人博客模板比赛参选活动</a></li>
+        <li><a href="/">个人博客模板《绅士》后台管理</a></li>
+      </ul>
+    </div>
+    -->
+    <div class="cloud">
+      <h2>标签云</h2>
+      <ul>
+          {% for tag in tags %}
+            <a href="{% url 'article:article_list' %}?tag={{ tag.id }}">{{ tag.name }}</a>
+          {% endfor %}
+      </ul>
+    </div>
+      <div class="links">
+        <h2>友情链接</h2>
+        <ul>
+            <li>
+          <a href="http://www.yangqq.com">杨青个人博客</a>
+            </li>
+            <li>
+          <a href="http://www.yangqq.com">杨青个人博客</a>
+            </li>
+            <li>
+          <a href="http://www.yangqq.com">杨青个人博客</a>
+            </li>
+        </ul>
+      </div>
+      <!--
+    <div class="guanzhu">
+      <h2>关注我 么么哒</h2>
+      <ul>
+        <img src="images/wx.jpg">
+      </ul>
+    </div>
+    -->
+  </aside>
+  <main class="r_box">
+      {% if searchstr %}
+          <div class="description bg-white px-3 pt-3 pb-1 mb-1 mb-sm-2 mb-md-3">
+                <p class="float-right mb-0">共<span class="mx-2 text-info">{{ articles.paginator.count }}</span>篇</p>
+                <h1 class="f-17"><strong>当前搜索：{{ searchstr }}</strong></h1>
+                <!--<p class="f-16">网站全文搜索功能，将整个网站的文章的标题和内容进行分词存储，然后给每个分词建立索引，搜索功能返回的是全站文章中标题或者内容中包含关键词的文章。</p>
+                -->
+            </div>
+      {% endif %}
+
+
+      {% for article in articles %}
+     <div class="summary-list">
+      <div class="media mb-1 mb-sm-2 p-2 p-lg-3">
+        <div class="align-self-center mr-2 mr-lg-3 w-25 modal-open">
+            <a href="{% url 'article:article_detail' article.id %}" target="_blank">
+                <img class="w-100 article-img" src="{{ article.avatar.url }}" alt="{{ article.brief }}">
+            </a>
+        </div>
+        <div class="media-body">
+            <h2 class="mt-0 font-weight-bold text-info f-17">
+                <a href="{% url 'article:article_detail' article.id %}" target="_blank">{{ article.title }}</a>
+            </h2>
+            <p class="d-none d-sm-block mb-2 f-15">{{ article.body | truncatechars:50 }}</p>
+            <p class="d-block d-sm-none mb-2 f-15">{{ article.body | truncatechars:50 }} {{ article.brief}}...</p>
+            <div class="text-muted mb-0 f-12">
+                <a class="cate" href="{% url 'article:article_list' %}?category={{ article.category.id }}" title="查看当前分类下更多文章">
+                    <i class="fa fa-book mr-1"></i>{{ article.category }}</a>
+                <span><i class="fa fa-eye ml-2 mr-1"></i>{{ article.viewnum }}</span>
+                <span><i class="fa fa-calendar ml-2 mr-1"></i>{{ article.updated | date:'Y-m-d' }}</span>
+                <a class="comment" href="/" target="_blank" title="查看文章评论">
+                    <i class="fa  fa-comments ml-2 mr-1"></i>48</a>
+            </div>
+        </div>
+        </div>
+    </div>
+      {% endfor %}
+
+        {% if articles %}
+                    <div class="pagelist">
+            {% if articles.has_previous %}
+               <!--<a href="?page=1">1</a>-->
+               <!--<a href="?page={{ articles.previous_page_number }}">上一页</a>-->
+            {% endif%}
+                <!-- {{ articles.number }} / {{ articles.paginator.num_pages }} -->
+             {% for p in articles.paginator.page_range %}
+
+                {% if p == articles.number %}
+                    <a class="curPage" href="?page={{ p }}">{{ p }}</a>
+                {% else %}
+                    <a href="?page={{ p }}">{{ p }}</a>
+                {% endif %}
+             {%  endfor %}
+            {% if articles.has_next %}
+                <!-- <a href="?page={{ articles.next_page_number }}" >下一页</a>&nbsp;&nbsp; -->
+                <!-- <a href="?page={{ articles.paginator.num_pages }}" >{{ articles.paginator.num_pages }}</a>-->
+            {% endif %}
+        </div>
+        {% else %}
+             <div class="p-3 mt-3 bg-white"><p>暂时没有文章!</p></div>
+        {% endif %}
+  </main>
+</article>
+
+{% endblock content %}
