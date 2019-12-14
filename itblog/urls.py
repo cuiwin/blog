@@ -31,4 +31,5 @@ urlpatterns = [
     path('bookmark/',include('bookmark.urls',namespace='bookmark'))
 ]
 
+
 urlpatterns += static(settings.MEDIA_URL,document_root=settings.MEDIA_ROOT)
