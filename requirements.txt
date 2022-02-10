@@ -1,4 +1,4 @@
-Django==2.2.2
+Django==2.2.27
 Markdown==3.1.1
 mysqlclient==1.4.2.post1
 Pillow==6.1.0
